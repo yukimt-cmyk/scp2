@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080c10">
+<title>SCP-XXXX-JP | 財団内部データベース</title>
+<style>
+:root{--bg:#080c10;--panel:#101820;--panel2:#0b1218;--line:#263541;--text:#d5e0e7;--muted:#82939f;--red:#d34b4b;--green:#77c99a;--amber:#d5aa5c;--blue:#78a9c9}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 50% -20%,#172735 0,#080c10 55%);color:var(--text);font:15px/1.7 system-ui,-apple-system,"Noto Sans JP",sans-serif;min-height:100vh}
+button,input{font:inherit}
+.topbar{border-bottom:1px solid var(--line);background:#080d12eF;position:sticky;top:0;z-index:5;backdrop-filter:blur(10px)}
+.topinner{max-width:980px;margin:auto;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{font-weight:800;letter-spacing:.12em;font-size:13px}.brand span{color:var(--red)}
+.status{font-size:11px;color:var(--green);letter-spacing:.1em}
+main{max-width:900px;margin:32px auto;padding:0 18px 70px}
+.crumb{font:11px ui-monospace,monospace;color:var(--muted);letter-spacing:.08em;margin-bottom:18px}
+.hero{border:1px solid var(--line);background:linear-gradient(135deg,#121d26,#0b1117);padding:24px;border-radius:8px;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;right:-30px;top:-50px;width:180px;height:180px;border:1px solid #263541;border-radius:50%;box-shadow:0 0 0 22px #26354118,0 0 0 44px #2635410c;pointer-events:none}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tag{font:10px ui-monospace,monospace;border:1px solid #754040;color:#f08b8b;padding:2px 8px;border-radius:3px}
+.tag.gray{border-color:#465763;color:#a9bac5}
+h1{font-size:clamp(25px,5vw,38px);line-height:1.25;margin:0 0 8px;letter-spacing:.04em}
+.subtitle{color:var(--muted);font:11px ui-monospace,monospace;letter-spacing:.12em}
+.meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}
+.meta div{border-top:1px solid var(--line);padding-top:9px}.meta small{display:block;color:var(--muted);font-size:10px}.meta strong{font-size:12px;font-weight:600}
+section{margin-top:20px;border:1px solid var(--line);border-radius:7px;background:#0e151c;padding:20px}
+h2{font-size:16px;margin:0 0 14px;display:flex;align-items:center;gap:9px}
+h2:before{content:"";width:3px;height:17px;background:var(--red);display:inline-block}
+p{margin:9px 0}.muted{color:var(--muted)}.small{font-size:12px}
+.quote{border-left:2px solid #526777;padding:9px 14px;margin:14px 0;background:#ffffff05;color:#c0cdd5}
+.redacted{display:inline-block;background:#030506;color:#030506;padding:0 8px;border-radius:2px;cursor:pointer;user-select:none;transition:.2s}
+.redacted.revealed{background:#4a2525;color:#ffe0e0;box-shadow:0 0 0 1px #a34b4b}
+.console{background:#05090c;border:1px solid #263541;border-radius:6px;padding:16px;font:12px/1.8 ui-monospace,SFMono-Regular,monospace}
+.console-head{display:flex;justify-content:space-between;border-bottom:1px solid #263541;padding-bottom:9px;margin-bottom:12px;color:#9bb0bd}
+.green{color:var(--green)}.red{color:#ed7777}.amber{color:var(--amber)}
+.field{width:100%;background:#080d12;color:var(--text);border:1px solid #344653;border-radius:4px;padding:11px 12px;outline:none;margin:8px 0}
+.field:focus{border-color:var(--blue);box-shadow:0 0 0 2px #78a9c922}
+.btn{border:1px solid #526879;background:#172631;color:#e2edf3;padding:10px 15px;border-radius:4px;cursor:pointer;transition:.15s}
+.btn:hover{background:#223846;border-color:#8ba8bb}.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:#7c3030;border-color:#a84c4c}.btn.primary:hover{background:#963d3d}
+.btn.ghost{background:transparent}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.notice{padding:10px 12px;border:1px solid #725c35;background:#2a2113;color:#e6c88f;border-radius:4px;font-size:12px;margin-top:12px}
+.success{border-color:#315b43;background:#102219;color:#a4e0b8}
+.error{border-color:#713b3b;background:#251313;color:#f0a0a0}
+.hidden{display:none!important}
+.protocols{display:grid;gap:9px}
+.protocol{display:flex;gap:10px;border:1px solid var(--line);padding:12px;border-radius:5px;cursor:pointer;background:#0a1117}
+.protocol:has(input:checked){border-color:#7895a8;background:#14222c}
+.protocol input{accent-color:#c15b5b;margin-top:5px}
+.protocol b{display:block;font-size:13px}.protocol small{display:block;color:var(--muted);font-size:11px}
+hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+.log{white-space:pre-wrap;color:#b8c8d2}
+.glitch{animation:glitch .18s steps(2) 5}
+@keyframes glitch{0%{transform:translate(0)}25%{transform:translate(2px,-1px);filter:hue-rotate(90deg)}50%{transform:translate(-2px,1px);filter:contrast(1.8)}75%{transform:translate(1px,1px)}100%{transform:translate(0)}}
+.scan{position:relative}.scan:after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 3px,#00000016 4px)}
+footer{text-align:center;color:#657783;font:10px ui-monospace,monospace;margin-top:30px;letter-spacing:.08em}
+@media(max-width:600px){main{margin-top:18px;padding-inline:12px}.hero,section{padding:16px}.meta{grid-template-columns:1fr 1fr}.topinner{padding:10px 13px}.btn{width:100%}.row{align-items:stretch}}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="topinner"><div class="brand"><span>◆</span> SCP FOUNDATION <span style="color:#82939f">/ DATABASE</span></div><div class="status">● SECURE CONNECTION</div></div></header>
+<main id="app">
+<div class="crumb">INTERNAL DATABASE　/　JAPAN BRANCH　/　DOCUMENT JP-XXXX-001</div>
+<div class="hero">
+  <div class="tags"><span class="tag">LEVEL 4</span><span class="tag gray">TEMPORAL ANOMALY</span><span class="tag gray">COGNITOHAZARD?</span></div>
+  <h1>SCP-XXXX-JP</h1><div class="subtitle">「昨日の記録」 / YESTERDAY'S RECORD</div>
+  <div class="meta">
+    <div><small>文書管理番号</small><strong>JP-XXXX-001</strong></div>
+    <div><small>最終更新日時</small><strong id="docTime">2026/11/13 20:14:32</strong></div>
+    <div><small>文書状態</small><strong class="amber">一部閲覧制限</strong></div>
+  </div>
+</div>
+
+<section>
+<h2>1. 特別収容プロトコル</h2>
+<p>SCP-XXXX-JPはサイト-81██内の低危険度異常物品保管庫に設置された、旧式のデスクトップコンピュータ一台です。</p>
+<p>当該コンピュータは電源供給が停止している状態でも稼働を継続し、外部ネットワークとの接続が物理的に遮断されているにもかかわらず、財団内部データベースへのアクセスを試みます。</p>
+<p>SCP-XXXX-JPの画面には、常に現在の日付と時刻が表示されます。ただし、画面に表示される時刻は現実の時刻と一致しません。</p>
+<p>また、コンピュータに保存されている文書には、閲覧者本人が過去に入力したことのない文章や、閲覧者の行動を正確に記述した記録が確認されています。</p>
+<div class="quote">特に「次はいつ戻るのか」という質問は厳禁です。</div>
+</section>
+
+<section>
+<h2>2. 説明</h2>
+<p>SCP-XXXX-JPは、使用者の意識を特定の時間地点へ移動させる異常性を持つと考えられています。</p>
+<p>実験では、コンピュータに表示された指定操作を実行した職員が、実験開始前の時間へ戻った状態で発見されています。しかし、時間が巻き戻ったにもかかわらず、使用者の記憶は維持されています。</p>
+<p>さらに、実験を繰り返すごとに、コンピュータ内部の文書に変化が発生します。その変化には、実験担当者がまだ実行していない行動の記録も含まれています。</p>
+<p>確認されている最も奇妙な事例は、実験開始前の段階で、実験終了後に記録されるはずの報告書が保存されていたことです。</p>
+<p>その報告書には、実験担当者の死亡が記録されていました。</p>
+<p>なお、該当する職員は現在も生存しています。</p>
+</section>
+
+<section>
+<h2>3. 端末内蔵データベース</h2>
+<div class="console scan">
+  <div class="console-head"><span>TERMINAL_XXXX</span><span class="green">ONLINE</span></div>
+  <div>USER: RESEARCHER　/　ACCESS LEVEL: 2</div>
+  <hr>
+  <div class="amber">AUTHENTICATION REQUIRED</div>
+  <label for="password">PASSWORD</label>
+  <input id="password" class="field" type="password" placeholder="パスワードを入力..." autocomplete="off">
+  <div class="row"><button class="btn" id="authBtn">認証する</button><span id="authStatus" class="muted small">管理者認証が必要です。</span></div>
+  <div id="secretFile" class="hidden">
+    <hr><div class="green">ACCESS GRANTED / RECOVERY_NOTE.txt</div>
+    <div class="quote">もしこの文章を読んでいるなら、まだ間に合う。<br>実験を開始する前に、必ず時計を確認しろ。<br>そして、もし画面に自分の名前が表示されても、絶対に返信するな。</div>
+    <div class="muted small">作成日時：2026/11/13 20:14:32</div>
+    <div class="red small">※このファイルの作成者は登録されていません。</div>
+  </div>
+</div>
+<div class="row" style="margin-top:12px"><button class="btn ghost" id="diagBtn">▣ システムエラーを診断する</button></div>
+<div id="diag" class="console hidden" style="margin-top:10px">
+  <div class="red">WARNING: UNEXPECTED RESPONSE</div>
+  <div class="log">SYSTEM CHECK...........OK
+CLOCK SYNCHRONIZATION..FAILED
+MEMORY INTEGRITY.......FAILED
+USER SESSION...........ACTIVE
+USER SESSION...........ACTIVE
+USER SESSION...........ACTIVE</div>
+  <hr><div class="red">未登録のセッションが1件存在します。</div>
+  <div>SESSION OWNER: <span id="userName">あなた</span></div>
+  <div class="muted small">※この端末にはカメラが接続されていません。</div>
+</div>
+</section>
+
+<section>
+<h2>4. 実験記録：事前準備</h2>
+<p>実験担当者は、以下の3種類から実験方式を選択してください。</p>
+<div class="protocols">
+<label class="protocol"><input type="radio" name="protocol" value="通常観測" checked><span><b>PROTO-01：通常観測</b><small>指定された時間への移動と、記憶保持の有無を調査する。</small></span></label>
+<label class="protocol"><input type="radio" name="protocol" value="記録優先"><span><b>PROTO-02：記録優先</b><small>時間移動中の端末ログを優先的に記録する。</small></span></label>
+<label class="protocol"><input type="radio" name="protocol" value="自己対話"><span><b>PROTO-03：自己対話</b><small>時間移動後の自分自身に対してメッセージを残すことを試みる。</small></span></label>
+</div>
+<hr>
+<div class="row" style="justify-content:space-between"><span class="muted small">実験番号：<b id="sessionLabel">0001</b></span><span class="amber small" id="experimentStatus">未開始</span></div>
+<p class="muted small">実験を開始すると、実験結果報告書が生成されます。再実験を行うたびに記録内容が変化します。</p>
+<button class="btn primary" id="startBtn" disabled>▶ 実験を開始する</button>
+<div class="muted small" id="lockHint">実験開始には管理者認証が必要です。</div>
+</section>
+
+<section id="result" class="hidden">
+<h2>5. 実験結果報告書</h2>
+<div class="console">
+ <div class="console-head"><span>EXPERIMENT RESULT</span><span class="red">RECORDING</span></div>
+ <div>SESSION：<span id="resultSession">0001</span></div>
+ <div>PROTOCOL：<span id="resultProtocol">通常観測</span></div>
+ <div>STATUS：<span class="amber">完了 / 要調査</span></div>
+</div>
+<div id="resultBody"></div>
+<div class="notice error" id="resultWarning">この記録は、まだ発生していない事象を含んでいます。</div>
+<hr>
+<div class="row">
+ <button class="btn primary" id="againBtn">次の実験を開始する</button>
+ <button class="btn ghost" id="resetBtn">最初のページに戻る</button>
+</div>
+</section>
+<footer>THE FOUNDATION　/　SECURE DOCUMENT SYSTEM<br>UNAUTHORIZED ACCESS IS PROHIBITED</footer>
+</main>
+<script>
+(() => {
+ const $ = id => document.getElementById(id);
+ let authenticated = false;
+ let session = 1;
+ let hasRun = false;
+ const pad = n => String(n).padStart(4,'0');
+ const unlock = () => {
+   authenticated = true;
+   $('authStatus').textContent = '認証成功';
+   $('authStatus').className = 'green small';
+   $('secretFile').classList.remove('hidden');
+   $('startBtn').disabled = false;
+   $('lockHint').textContent = '認証済み。実験プロトコルを選択してください。';
+   $('experimentStatus').textContent = '認証済み';
+   $('password').value = '';
+ };
+ $('authBtn').addEventListener('click', () => {
+   if ($('password').value.trim() === '0417') unlock();
+   else {
+     $('authStatus').textContent = 'ACCESS DENIED — 認証に失敗しました。ヒント：最初の実験記録に関係する4桁の数字。';
+     $('authStatus').className = 'red small';
+     $('password').classList.add('glitch');
+     setTimeout(()=>$('password').classList.remove('glitch'),1000);
+   }
+ });
+ $('password').addEventListener('keydown', e => { if(e.key==='Enter') $('authBtn').click(); });
+ $('diagBtn').addEventListener('click', () => {
+   $('diag').classList.toggle('hidden');
+   if (!$('diag').classList.contains('hidden')) {
+     $('diag').classList.add('glitch');
+     setTimeout(()=>$('diag').classList.remove('glitch'),1000);
+   }
+ });
+ function makeResult(n, protocol) {
+   const common = `<p>実験担当者は端末の指示に従い、指定操作を実行。直後、室内照明が約${n+1}秒間消失した。</p><p>照明復旧後、担当者は実験開始の約10分前に相当する時刻へ戻っていたと報告。担当者の記憶は保持されていた。</p>`;
+   const variants = [
+    `<p>担当者は実験開始前の自分自身を廊下で目撃したと証言。目撃された人物は、担当者に気づくと口の動きだけで「まだ始めるな」と伝えた。</p><div class="quote">端末ログ：<br>20:14:31　実験開始要求を受信。<br>20:14:32　実験終了を確認。<br><span class="red">20:14:33　担当者がこちらを見ています。</span></div>`,
+    `<p>端末内の実験記録に、担当者がまだ入力していない文章が追加されていた。文章は担当者の筆跡と一致する。</p><div class="quote">「記録を信じるな。前回の私は、ここで安心した。」</div><p>担当者は当該文章を読んだ記憶がないと主張。ところが、文章末尾には担当者が普段使用する署名が確認された。</p>`,
+    `<p>実験終了後、端末のスピーカーから担当者本人の声が再生された。音声の波形は、実験中の録音データと一致しない。</p><div class="quote">音声記録：<br>「聞こえているか。今度こそ、私の話を最後まで聞け。<br>君はこれを初めて読むんじゃない。」</div><p>音声の録音日時は、端末内部時計で翌日に設定されていた。</p>`,
+    `<p>時間移動後、担当者は実験室の壁に爪で刻まれた文字を発見した。</p><div class="quote red">「戻るたびに、ひとつ忘れる。」</div><p>担当者はその文字を見た瞬間、実験開始前に何を考えていたか思い出せなくなったと報告。なお、担当者は実験室に入室する前から同じ文字を知っていたと主張している。</p>`,
+    `<p>実験終了後、担当者は端末の画面に表示された自分の顔が、実際の動作より約3秒遅れて動いていることに気づいた。</p><div class="quote">画面内の担当者：「次の実験はやめろ」<br>実際の担当者：発言していない。</div><p>画面内の人物は、担当者が端末の電源を切った後も数秒間、こちらを見続けていた。</p>`
+   ];
+   let extra = variants[(n-1)%variants.length];
+   let protoExtra = protocol==='記録優先'
+    ? '<p class="red">追記：ログの一部が実験開始前の時刻に上書きされている。上書き元のユーザーIDは、現在の担当者と一致。</p>'
+    : protocol==='自己対話'
+    ? '<p class="red">追記：担当者が残したメッセージへの返信が検出された。返信内容は「もう返事をするな」。送信元は同一端末。</p>'
+    : '';
+   let escalation = n>=3 ? `<p>担当者は実験後、同じ質問を繰り返した。「これは何回目の実験ですか」。記録上、質問は合計${n+2}回行われているが、担当者は一度しか尋ねていないと主張。</p>` : '';
+   let hidden = n>=2 ? `<p>文書末尾に新たな黒塗り箇所が出現。クリックして開示：</p><p>担当者の最終所見：<span class="redacted" tabindex="0" role="button" title="クリックで開示">この実験は時間を戻しているのではない。</span></p>` : '';
+   return common + extra + protoExtra + escalation + hidden;
+ }
+ function runExperiment() {
+   if(!authenticated) return;
+   const protocol = document.querySelector('input[name="protocol"]:checked').value;
+   $('resultSession').textContent=pad(session);
+   $('resultProtocol').textContent=protocol;
+   $('resultBody').innerHTML=makeResult(session,protocol);
+   $('result').classList.remove('hidden');
+   $('experimentStatus').textContent='実験完了';
+   $('result').scrollIntoView({behavior:'smooth',block:'start'});
+   $('result').classList.add('glitch');
+   setTimeout(()=>$('result').classList.remove('glitch'),1000);
+   hasRun=true;
+   document.querySelectorAll('.redacted').forEach(el=>{
+     const reveal=()=>{el.classList.add('revealed');el.textContent='時間を戻しているのではない。記録を作り直している。';};
+     el.addEventListener('click',reveal);
+     el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();reveal();}});
+   });
+ }
+ $('startBtn').addEventListener('click',runExperiment);
+ $('againBtn').addEventListener('click',()=>{
+   session++;
+   $('sessionLabel').textContent=pad(session);
+   $('result').classList.add('hidden');
+   $('experimentStatus').textContent='再実験待機';
+   $('startBtn').textContent='▶ SESSION '+pad(session)+' を開始する';
+   $('startBtn').scrollIntoView({behavior:'smooth',block:'center'});
+ });
+ $('resetBtn').addEventListener('click',()=>{
+   $('result').classList.add('hidden');
+   $('experimentStatus').textContent='認証済み';
+   $('startBtn').scrollIntoView({behavior:'smooth',block:'center'});
+ });
+ document.addEventListener('click',e=>{
+   if(e.target.classList.contains('redacted') && !e.target.classList.contains('revealed')){
+     e.target.classList.add('revealed');
+     e.target.textContent='この実験は時間を戻しているのではない。記録を作り直している。';
+   }
+ });
+})();
+</script>
+</body>
+</html>
